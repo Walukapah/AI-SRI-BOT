@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Downloader Bot</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>WhatsApp Downloader Bot</h1>
+            <p>Connect your WhatsApp number to use download features</p>
+            
+            <div class="form-group">
+                <input type="text" id="phoneNumber" placeholder="+94123456789" required>
+                <button id="connectBtn">Generate Pairing Code</button>
+            </div>
+            
+            <div id="pairingSection" class="hidden">
+                <h3>Your Pairing Code:</h3>
+                <div id="pairingCode" class="code-display"></div>
+                <ol class="instructions">
+                    <li>Open WhatsApp on your phone</li>
+                    <li>Go to Settings → Linked Devices → Link a Device</li>
+                    <li>Enter the code above</li>
+                </ol>
+            </div>
+            
+            <div class="features hidden" id="featuresSection">
+                <h2>Download Features</h2>
+                <div class="feature-card">
+                    <h3>YouTube Video Download</h3>
+                    <p>Send <code>!yt [URL]</code> to bot</p>
+                </div>
+                <div class="feature-card">
+                    <h3>YouTube Audio Download</h3>
+                    <p>Send <code>!ytmp3 [URL]</code> to bot</p>
+                </div>
+                <div class="feature-card">
+                    <h3>TikTok Download</h3>
+                    <p>Send <code>!tiktok [URL]</code> to bot</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Facebook Download</h3>
+                    <p>Send <code>!fb [URL]</code> to bot</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
