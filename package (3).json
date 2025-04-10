@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.17.16",
+    "express": "^5.1.0",
+    "fs": "^0.0.1-security",
+    "node-fetch": "^3.3.2",
+    "pm2": "^6.0.5",
+    "tiktok-scraper": "^1.4.36",
+    "ytdl-core": "^4.11.5"
+  }
+}
