@@ -10,7 +10,7 @@
     "node" : ">=20.0.0"
     },
   "scripts": {
-    "start": "pm2 start script.js --deep-monitoring --attach --name wabot",
+    "start": "pm2 start script.js --deep-monitoring --attach --name sribot",
     "stop": "pm2 stop sribot",
     "restart": "pm2 restart sribot"
   },
