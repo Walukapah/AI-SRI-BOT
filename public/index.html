@@ -3,51 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WhatsApp Downloader Bot</title>
-    <link rel="stylesheet" href="style.css">
+    <title>WhatsApp Bot Pairing</title>
+    <style>
+        :root {
+            --primary: #25D366;
+            --secondary: #128C7E;
+            --light: #f5f5f5;
+            --dark: #075E54;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: white;
+        }
+        
+        .container {
+            background-color: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1 {
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        .input-container {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        
+        input {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+        
+        input:focus {
+            border-color: rgba(255, 255, 255, 0.6);
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .btn {
+            background-color: white;
+            color: var(--primary);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:hover {
+            background-color: #f0f0f0;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .pairing-code-container {
+            margin-top: 2rem;
+            font-size: 1.1rem;
+            display: none;
+            animation: slideUp 0.4s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .pairing-code {
+            font-weight: 700;
+            font-size: 1.8rem;
+            letter-spacing: 0.3rem;
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            border-radius: 10px;
+            display: inline-block;
+            margin: 1rem 0;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .instructions {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 1.5rem;
+        }
+        
+        .whatsapp-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <div class="card">
-            <h1>WhatsApp Downloader Bot</h1>
-            <p>Connect your WhatsApp number to use download features</p>
-            
-            <div class="form-group">
-                <input type="text" id="phoneNumber" placeholder="+94123456789" required>
-                <button id="connectBtn">Generate Pairing Code</button>
-            </div>
-            
-            <div id="pairingSection" class="hidden">
-                <h3>Your Pairing Code:</h3>
-                <div id="pairingCode" class="code-display"></div>
-                <ol class="instructions">
-                    <li>Open WhatsApp on your phone</li>
-                    <li>Go to Settings → Linked Devices → Link a Device</li>
-                    <li>Enter the code above</li>
-                </ol>
-            </div>
-            
-            <div class="features hidden" id="featuresSection">
-                <h2>Download Features</h2>
-                <div class="feature-card">
-                    <h3>YouTube Video Download</h3>
-                    <p>Send <code>!yt [URL]</code> to bot</p>
-                </div>
-                <div class="feature-card">
-                    <h3>YouTube Audio Download</h3>
-                    <p>Send <code>!ytmp3 [URL]</code> to bot</p>
-                </div>
-                <div class="feature-card">
-                    <h3>TikTok Download</h3>
-                    <p>Send <code>!tiktok [URL]</code> to bot</p>
-                </div>
-                <div class="feature-card">
-                    <h3>Facebook Download</h3>
-                    <p>Send <code>!fb [URL]</code> to bot</p>
-                </div>
-            </div>
+        <div class="whatsapp-icon">📱</div>
+        <h1>Connect WhatsApp Account</h1>
+        <div class="input-container">
+            <input type="tel" id="whatsappNumber" placeholder="+94 77 123 4567" pattern="^\+\d{10,15}$">
+        </div>
+        <button class="btn" onclick="generatePairingCode()">Generate Pairing Code</button>
+        
+        <div id="pairingCodeContainer" class="pairing-code-container">
+            <p>Your 6-digit Pairing Code:</p>
+            <div id="pairingCode" class="pairing-code"></div>
+            <p class="instructions">
+                1. Save this number in your contacts<br>
+                2. Send this code to our bot<br>
+                3. You'll receive a confirmation message
+            </p>
         </div>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        function generatePairingCode() {
+            const number = document.getElementById('whatsappNumber').value;
+            
+            // Validate number
+            if (!number.match(/^\+\d{10,15}$/)) {
+                alert('Please enter a valid WhatsApp number with country code (e.g., +94771234567)');
+                return;
+            }
+            
+            // Generate random 6-digit pairing code
+            const pairingCode = Math.floor(100000 + Math.random() * 900000);
+            
+            // Display the pairing code
+            document.getElementById('pairingCode').textContent = pairingCode;
+            document.getElementById('pairingCodeContainer').style.display = 'block';
+            
+            // Scroll to pairing code
+            document.getElementById('pairingCodeContainer').scrollIntoView({ behavior: 'smooth' });
+            
+            // Send data to server
+            fetch('/api/pair', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    number: number,
+                    code: pairingCode.toString()
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Pairing initiated:', data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error initiating pairing. Please try again.');
+            });
+        }
+    </script>
 </body>
 </html>
