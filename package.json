@@ -1,3 +1,5 @@
+
+
 {
   "name": "AI-SRI-BOT",
   "version": "1.0.0",
@@ -14,7 +16,6 @@
   },
   "author": "WalukaPahan",
   "license": "GPL-3.0 license",
-{
   "dependencies": {
     "@whiskeysockets/baileys": "^6.17.16",
     "express": "^5.1.0",
