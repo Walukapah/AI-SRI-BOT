@@ -1,0 +1,27 @@
+{
+  "name": "SRI-BOT",
+  "version": "1.0.0",
+  "description": "A WhatsApp bot created using Node.js",
+  "main": "script.js",
+  "engines" : { 
+    "npm" : ">=9.7.2",
+    "node" : ">=20.0.0"
+    },
+  "scripts": {
+    "start": "pm2 start script.js --deep-monitoring --attach --name wabot",
+    "stop": "pm2 stop sribot",
+    "restart": "pm2 restart sribot"
+  },
+  "author": "WalukaPahan",
+  "license": "GPL-3.0 license",
+{
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.17.16",
+    "express": "^5.1.0",
+    "fs": "^0.0.1-security",
+    "node-fetch": "^3.3.2",
+    "pm2": "^6.0.5",
+    "tiktok-scraper": "^1.4.36",
+    "ytdl-core": "^4.11.5"
+  }
+}
