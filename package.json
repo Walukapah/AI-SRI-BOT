@@ -7,12 +7,12 @@
   "main": "server.js",
   "engines" : { 
     "npm" : ">=9.7.2",
-    "node" : ">=20.0.0"
+    "node" : "23.x"
     },
   "scripts": {
-    "start": "node server.js",
-    "stop": "pm2 stop sribot",
-    "restart": "pm2 restart sribot"
+  "start": "node server.js",
+  "heroku-prebuild": "apt-get update && apt-get install -y libcairo2-dev libjpeg-dev libpango1.0-dev libgif-dev build-essential g++",
+  "build": "npm install"
   },
   "author": "WalukaPahan",
   "license": "GPL-3.0 license",
