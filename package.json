@@ -4,13 +4,13 @@
   "name": "AI-SRI-BOT",
   "version": "1.0.0",
   "description": "A WhatsApp bot created using Node.js",
-  "main": "script.js",
+  "main": "server.js",
   "engines" : { 
     "npm" : ">=9.7.2",
     "node" : ">=20.0.0"
     },
   "scripts": {
-    "start": "pm2 start script.js --deep-monitoring --attach --name sribot",
+    "start": "pm2 start server.js --deep-monitoring --attach --name sribot",
     "stop": "pm2 stop sribot",
     "restart": "pm2 restart sribot"
   },
