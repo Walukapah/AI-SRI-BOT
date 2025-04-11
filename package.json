@@ -10,7 +10,7 @@
     "node" : ">=20.0.0"
     },
   "scripts": {
-    "start": "node server.js --deep-monitoring --attach --name sribot",
+    "start": "node server.js",
     "stop": "pm2 stop sribot",
     "restart": "pm2 restart sribot"
   },
