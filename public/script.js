@@ -25,23 +25,9 @@ document.getElementById('connectBtn').addEventListener('click', async function()
         }
         
         // Show pairing code
-        document.getElementById('pairingCode').textContent = data.pairingCode;
+        document.getElementById('pairingCodeDisplay').textContent = data.pairingCode;
         document.getElementById('pairingContainer').classList.remove('hidden');
-        
-        // Check connection status periodically
-        const checkInterval = setInterval(async () => {
-            try {
-                const statusResponse = await fetch('/connection-status');
-                const status = await statusResponse.json();
-                
-                if (status.connected) {
-                    clearInterval(checkInterval);
-                    document.getElementById('featuresContainer').classList.remove('hidden');
-                }
-            } catch (error) {
-                console.error('Status check error:', error);
-            }
-        }, 2000);
+        document.getElementById('featuresContainer').classList.remove('hidden');
         
     } catch (error) {
         console.error('Error:', error);
@@ -50,4 +36,15 @@ document.getElementById('connectBtn').addEventListener('click', async function()
         this.disabled = false;
         this.textContent = 'Generate Pairing Code';
     }
+});
+
+// Copy pairing code functionality
+document.getElementById('copyBtn').addEventListener('click', function() {
+    const code = document.getElementById('pairingCodeDisplay').textContent;
+    navigator.clipboard.writeText(code).then(() => {
+        this.textContent = 'Copied!';
+        setTimeout(() => {
+            this.textContent = 'Copy Code';
+        }, 2000);
+    });
 });
