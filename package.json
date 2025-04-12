@@ -23,6 +23,7 @@
     "node-fetch": "^3.3.2",
     "pm2": "^6.0.5",
     "tiktok-scraper": "^1.4.36",
-    "ytdl-core": "^4.11.5"
+    "ytdl-core": "^4.11.5",
+    "baileys": "6.7.16"
   }
 }
