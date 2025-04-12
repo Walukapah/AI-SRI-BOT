@@ -1,5 +1,5 @@
 const express = require('express');
-const { makeWASocket, useMultiFileAuthState } = require('baileys');
+const { makeWASocket } = require('baileys');
 const fs = require('fs');
 const path = require('path');
 const ytdl = require('ytdl-core');
