@@ -25,5 +25,6 @@
     "tiktok-scraper": "^1.4.36",
     "ytdl-core": "^4.11.5",
     "baileys": "6.7.16"
+    "crypto": "1.0.1"
   }
 }
