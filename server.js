@@ -1,5 +1,5 @@
 const express = require('express');
-const { makeWASocket, useMultiFileAuthState, delay } = require('@whiskeysockets/baileys');
+const { makeWASocket, useMultiFileAuthState } = require('baileys');
 const fs = require('fs');
 const path = require('path');
 const ytdl = require('ytdl-core');
@@ -16,7 +16,6 @@ app.use('/downloads', express.static('downloads'));
 // WhatsApp Bot
 let sock = null;
 let pairingCode = '';
-let connectedNumber = '';
 
 // Routes
 app.get('/', (req, res) => {
@@ -25,16 +24,14 @@ app.get('/', (req, res) => {
 
 app.post('/connect', async (req, res) => {
     const { phoneNumber } = req.body;
-    connectedNumber = phoneNumber;
-
+    
     try {
         const { state, saveCreds } = await useMultiFileAuthState('auth');
         
         sock = makeWASocket({
             version: [2, 2413, 1],
-            auth: state,
             printQRInTerminal: false,
-            mobile: true
+            auth: state
         });
 
         sock.ev.on('connection.update', (update) => {
@@ -43,7 +40,7 @@ app.post('/connect', async (req, res) => {
                 console.log(`Pairing Code: ${pairingCode}`);
             }
             if (update.connection === 'open') {
-                console.log(`Connected to ${phoneNumber}`);
+                console.log(`Connected to WhatsApp`);
                 setupBotHandlers();
             }
         });
@@ -55,6 +52,10 @@ app.post('/connect', async (req, res) => {
         console.error('Error:', error);
         res.status(500).json({ error: 'Failed to initialize bot' });
     }
+});
+
+app.get('/get-pairing-code', (req, res) => {
+    res.json({ pairingCode: pairingCode || 'Generating...' });
 });
 
 // Bot Command Handlers
@@ -86,6 +87,7 @@ function setupBotHandlers() {
     });
 }
 
+// Downloader Functions
 async function handleYouTubeVideo(url, sender) {
     try {
         const info = await ytdl.getInfo(url);
@@ -104,48 +106,6 @@ async function handleYouTubeVideo(url, sender) {
     } catch (error) {
         console.error('YouTube download error:', error);
         await sock.sendMessage(sender, { text: 'Failed to download YouTube video' });
-    }
-}
-
-async function handleYouTubeAudio(url, sender) {
-    try {
-        const info = await ytdl.getInfo(url);
-        const filename = `yt_${Date.now()}.mp3`;
-        const filepath = path.join(__dirname, 'downloads', filename);
-        
-        ytdl(url, { filter: 'audioonly', quality: 'highestaudio' })
-            .pipe(fs.createWriteStream(filepath))
-            .on('finish', async () => {
-                await sock.sendMessage(sender, { 
-                    audio: { url: `http://yourdomain.com/downloads/${filename}` },
-                    mimetype: 'audio/mpeg',
-                    fileName: `${info.videoDetails.title}.mp3`
-                });
-            });
-    } catch (error) {
-        console.error('YouTube audio download error:', error);
-        await sock.sendMessage(sender, { text: 'Failed to download YouTube audio' });
-    }
-}
-
-async function handleTikTok(url, sender) {
-    try {
-        const result = await tiktokdl(url);
-        const filename = `tiktok_${Date.now()}.mp4`;
-        const filepath = path.join(__dirname, 'downloads', filename);
-        
-        const response = await fetch(result.video);
-        const buffer = await response.buffer();
-        fs.writeFileSync(filepath, buffer);
-        
-        await sock.sendMessage(sender, { 
-            video: { url: `http://yourdomain.com/downloads/${filename}` },
-            mimetype: 'video/mp4',
-            fileName: 'tiktok_video.mp4'
-        });
-    } catch (error) {
-        console.error('TikTok download error:', error);
-        await sock.sendMessage(sender, { text: 'Failed to download TikTok video' });
     }
 }
 
