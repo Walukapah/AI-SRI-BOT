@@ -52,6 +52,7 @@ app.post('/connect', async (req, res) => {
         sock.ev.on('creds.update', saveCreds);
 
         res.json({ success: true, pairingCode });
+        }
     } catch (error) {
         console.error('Error:', error);
         res.status(500).json({ error: 'Failed to initialize bot' });
