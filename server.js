@@ -1,3 +1,5 @@
+// Add this at the very top of your server.js
+globalThis.crypto = require('crypto').webcrypto;
 const express = require('express');
 const { makeWASocket } = require('baileys');
 const fs = require('fs');
@@ -26,13 +28,15 @@ app.post('/connect', async (req, res) => {
     const { phoneNumber } = req.body;
     
     try {
-        const { state, saveCreds } = await useMultiFileAuthState('auth');
-        
-        sock = makeWASocket({
-            version: [2, 2413, 1],
-            printQRInTerminal: false,
-            auth: state
-        });
+        async function connectToWhatsApp() {
+    const { state, saveCreds } = await useMultiFileAuthState('baileys_auth');
+    
+    const sock = makeWASocket({
+        version: [2, 2413, 1],
+        printQRInTerminal: true,
+        auth: state,
+        browser: ['Ubuntu', 'Chrome', '110.0.5481.177'] // Add browser info
+    });
 
         sock.ev.on('connection.update', (update) => {
             if (update.pairingCode) {
