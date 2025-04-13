@@ -34,7 +34,7 @@ async function connectToWhatsApp() {
             browser: ['Ubuntu', 'Chrome', '110.0.5481.177'],
             connectTimeoutMs: 60000,
             keepAliveIntervalMs: 30000,
-            logger: { level: 'debug' } // වැඩිදුර දෝෂ නිරාකරණය සඳහා
+            //logger: { level: 'debug' } // වැඩිදුර දෝෂ නිරාකරණය සඳහා
         });
 
         sock.ev.on('connection.update', async (update) => {
