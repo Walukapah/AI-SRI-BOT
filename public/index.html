@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="si">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,46 +10,44 @@
     <div class="container">
         <div class="card">
             <h1>WhatsApp Downloader Bot</h1>
-            <p class="subtitle">Connect your WhatsApp number to use download features</p>
             
-            <div class="form-container">
-                <input type="text" id="phoneNumber" placeholder="+94XXXXXXXXX">
-                <button id="connectBtn">Generate Pairing Code</button>
+            <div class="form-group">
+                <input type="text" id="phoneNumber" placeholder="WhatsApp අංකය (+94XXXXXXXXX)">
+                <button id="connectBtn">සම්බන්ධ වන්න</button>
             </div>
             
-            <div id="pairingContainer" class="hidden">
-                <div class="pairing-code" id="pairingCodeDisplay"></div>
-                <button id="copyBtn">Copy Code</button>
+            <div id="codeSection" class="hidden">
+                <h3>සම්බන්ධතා කේතය</h3>
+                <div id="pairingCode" class="code-display"></div>
+                <button id="copyBtn">කේතය පිටපත් කරන්න</button>
+                
+                <div class="qr-container">
+                    <div id="qrCode"></div>
+                </div>
+                
                 <div class="instructions">
-                    <h3>How to connect:</h3>
+                    <h4>සම්බන්ධ වීමට:</h4>
                     <ol>
-                        <li>Open WhatsApp on your phone</li>
-                        <li>Go to Settings → Linked Devices → Link a Device</li>
-                        <li>Enter the pairing code above</li>
+                        <li>ඔබේ WhatsApp ඇප් එක විවෘත කරන්න</li>
+                        <li>සැකසුම් → සම්බන්ධිත උපාංග → උපාංගයක් සම්බන්ධ කරන්න</li>
+                        <li>ඉහත කේතය ඇතුළත් කරන්න</li>
                     </ol>
                 </div>
             </div>
             
-            <div id="featuresContainer" class="hidden">
-                <h2>Available Commands</h2>
-                
-                <div class="feature-card">
-                    <h3>YouTube Video Download</h3>
-                    <p>Send <code>!yt [YouTube URL]</code> to get the video</p>
+            <div id="features" class="hidden">
+                <h3>ලබාගත හැකි විධාන:</h3>
+                <div class="feature">
+                    <strong>!yt [YouTube URL]</strong> - YouTube වීඩියෝ බාගන්න
                 </div>
-                
-                <div class="feature-card">
-                    <h3>YouTube Audio Download</h3>
-                    <p>Send <code>!ytmp3 [YouTube URL]</code> to get the audio</p>
-                </div>
-                
-                <div class="feature-card">
-                    <h3>TikTok Video Download</h3>
-                    <p>Send <code>!tiktok [TikTok URL]</code> to get the video</p>
+                <div class="feature">
+                    <strong>!ytmp3 [YouTube URL]</strong> - YouTube ගීතය MP3 ලෙස බාගන්න
                 </div>
             </div>
         </div>
     </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
