@@ -5,53 +5,62 @@
     --light: #dcf8c6;
 }
 
-body {
-    font-family: 'Segoe UI', sans-serif;
-    background-color: #f0f2f5;
+* {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+body {
+    background-color: #f0f2f5;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    padding: 20px;
 }
 
 .container {
     width: 100%;
     max-width: 500px;
-    padding: 20px;
 }
 
 .card {
     background: white;
     border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     padding: 30px;
     text-align: center;
 }
 
-.form-container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+h1 {
+    color: var(--dark);
     margin-bottom: 20px;
 }
 
+.form-group {
+    margin-bottom: 25px;
+}
+
 input {
+    width: 100%;
     padding: 12px 15px;
     border: 2px solid #ddd;
     border-radius: 8px;
     font-size: 16px;
+    margin-bottom: 15px;
 }
 
 button {
     background-color: var(--primary);
     color: white;
     border: none;
-    padding: 12px;
+    padding: 12px 20px;
     border-radius: 8px;
     font-size: 16px;
     cursor: pointer;
+    width: 100%;
     transition: all 0.3s;
 }
 
@@ -59,19 +68,42 @@ button:hover {
     background-color: var(--secondary);
 }
 
-.pairing-code {
-    font-size: 28px;
+.code-display {
+    font-size: 24px;
     font-weight: bold;
     color: var(--dark);
-    margin: 20px 0;
-    padding: 15px;
     background-color: var(--light);
+    padding: 15px;
     border-radius: 8px;
+    margin: 20px 0;
+    word-break: break-all;
 }
 
 #copyBtn {
-    margin-top: 10px;
+    margin-bottom: 20px;
     background-color: var(--dark);
+}
+
+.qr-container {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+}
+
+.instructions {
+    text-align: left;
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.feature {
+    background-color: #f5f5f5;
+    padding: 12px;
+    border-radius: 8px;
+    margin: 10px 0;
+    text-align: left;
 }
 
 .hidden {
