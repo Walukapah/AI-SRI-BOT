@@ -31,7 +31,7 @@ async function connectToWhatsApp() {
             version: [2, 2413, 1],
             printQRInTerminal: true,
             auth: state,
-            browser: ['Ubuntu', 'Chrome', '110.0.5481.177'],
+            browser: Browsers.macOS("Safari"),
             connectTimeoutMs: 60000,
             keepAliveIntervalMs: 30000,
             //logger: { level: 'debug' } // වැඩිදුර දෝෂ නිරාකරණය සඳහා
