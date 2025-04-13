@@ -1,7 +1,7 @@
 // අවශ්ය මොඩියුල ආයාත කරන්න
 globalThis.crypto = require('crypto').webcrypto;
 const express = require('express');
-const { makeWASocket, useMultiFileAuthState } = require('baileys');
+const { makeWASocket, useMultiFileAuthState, delay, DisconnectReason } = require('baileys');
 const qrcode = require('qrcode-terminal');
 const fs = require('fs');
 const path = require('path');
@@ -19,33 +19,52 @@ app.use('/downloads', express.static('downloads'));
 // WhatsApp සම්බන්ධතා විචල්ය
 let sock = null;
 let pairingCode = '';
-let qrCode = '';
+let qr = '';
+let isConnected = false;
 
 // WhatsApp සම්බන්ධතාවය ආරම්භ කරන්න
 async function connectToWhatsApp() {
     try {
-        const { state, saveCreds } = await useMultiFileAuthState('auth');
+        const { state, saveCreds } = await useMultiFileAuthState('baileys_auth');
         
         sock = makeWASocket({
             version: [2, 2413, 1],
             printQRInTerminal: true,
             auth: state,
-            browser: ['Ubuntu', 'Chrome', '110.0.5481.177']
+            browser: ['Ubuntu', 'Chrome', '110.0.5481.177'],
+            connectTimeoutMs: 60000,
+            keepAliveIntervalMs: 30000,
+            logger: { level: 'debug' } // වැඩිදුර දෝෂ නිරාකරණය සඳහා
         });
 
-        sock.ev.on('connection.update', (update) => {
-            if (update.pairingCode) {
-                pairingCode = update.pairingCode;
-                console.log('Pairing Code:', pairingCode);
+        sock.ev.on('connection.update', async (update) => {
+            const { connection, qr: newQr, pairingCode: newPairingCode, lastDisconnect } = update;
+            
+            if (newQr) {
+                qr = newQr;
+                qrcode.generate(qr, { small: true });
+                console.log('QR Code Regenerated');
             }
             
-            if (update.qr) {
-                qrCode = update.qr;
-                qrcode.generate(qrCode, { small: true });
+            if (newPairingCode) {
+                pairingCode = newPairingCode;
+                console.log('New Pairing Code:', pairingCode);
             }
             
-            if (update.connection === 'open') {
+            if (connection === 'open') {
+                isConnected = true;
                 console.log('WhatsApp සාර්ථකව සම්බන්ධ විය!');
+                setupBotHandlers();
+            }
+            
+            if (connection === 'close') {
+                if (lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut) {
+                    console.log('සම්බන්ධතාවය අහිමි විය. නැවත සම්බන්ධ වෙමින්...');
+                    await delay(5000);
+                    connectToWhatsApp();
+                } else {
+                    console.log('ඔබ logout කර ඇත. නව QR කේතය අවශ්යයි.');
+                }
             }
         });
 
@@ -62,7 +81,7 @@ async function connectToWhatsApp() {
 function setupBotHandlers() {
     sock.ev.on('messages.upsert', async ({ messages }) => {
         const msg = messages[0];
-        if (!msg.message) return;
+        if (!msg.message || !isConnected) return;
 
         const text = msg.message.conversation || '';
         const sender = msg.key.remoteJid;
@@ -103,36 +122,63 @@ async function downloadYouTubeVideo(url, sender) {
     }
 }
 
+// YouTube ගීත බාගැනීම
+async function downloadYouTubeAudio(url, sender) {
+    try {
+        const info = await ytdl.getInfo(url);
+        const filename = `yt_${Date.now()}.mp3`;
+        const filepath = path.join(__dirname, 'downloads', filename);
+        
+        ytdl(url, { quality: 'highestaudio', filter: 'audioonly' })
+            .pipe(fs.createWriteStream(filepath))
+            .on('finish', async () => {
+                await sock.sendMessage(sender, { 
+                    audio: { url: `/downloads/${filename}` },
+                    mimetype: 'audio/mpeg',
+                    fileName: `${info.videoDetails.title}.mp3`
+                });
+            });
+    } catch (error) {
+        console.error('YouTube ගීත බාගැනීමේ දෝෂය:', error);
+        await sock.sendMessage(sender, { text: 'YouTube ගීතය බාගැනීමට අසමත් විය' });
+    }
+}
+
 // රූට් සැකසුම්
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.post('/connect', async (req, res) => {
-    const { phoneNumber } = req.body;
-    
-    if (!phoneNumber) {
-        return res.status(400).json({ error: 'WhatsApp අංකය ඇතුළත් කරන්න' });
-    }
-
-    const connected = await connectToWhatsApp();
-    if (connected) {
-        res.json({ success: true, message: 'WhatsApp සම්බන්ධ වෙමින්...' });
-    } else {
-        res.status(500).json({ error: 'සම්බන්ධතාවය අසාර්ථක විය' });
+    try {
+        const connected = await connectToWhatsApp();
+        if (connected) {
+            res.json({ success: true });
+        } else {
+            res.status(500).json({ error: 'සම්බන්ධතාවය අසාර්ථක විය' });
+        }
+    } catch (error) {
+        console.error('දෝෂය:', error);
+        res.status(500).json({ error: 'අභ්‍යන්තර සේවාදායක දෝෂය' });
     }
 });
 
 app.get('/get-code', (req, res) => {
     res.json({ 
+        status: isConnected ? 'connected' : 'disconnected',
         pairingCode: pairingCode || 'ජනනය වෙමින්...',
-        qrCode: qrCode || ''
+        qrCode: qr || ''
     });
 });
 
 // සේවාදායකය ආරම්භ කරන්න
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
     console.log(`සේවාදායකය ${PORT} වරායේ ධාවනය වෙමින් පවතී`);
+    
+    // අවශ්ය ඩිරෙක්ටරි සාදන්න
+    if (!fs.existsSync('baileys_auth')) fs.mkdirSync('baileys_auth');
     if (!fs.existsSync('downloads')) fs.mkdirSync('downloads');
-    if (!fs.existsSync('auth')) fs.mkdirSync('auth');
+    
+    // WhatsApp සමඟ ස්වයංක්‍රීයව සම්බන්ධ වන්න
+    await connectToWhatsApp();
 });
