@@ -1,13 +1,14 @@
-// Add this at the very top of your server.js
+// අවශ්ය මොඩියුල ආයාත කරන්න
 globalThis.crypto = require('crypto').webcrypto;
 const express = require('express');
-const { makeWASocket } = require('baileys');
+const { makeWASocket, useMultiFileAuthState } = require('baileys');
+const qrcode = require('qrcode-terminal');
 const fs = require('fs');
 const path = require('path');
 const ytdl = require('ytdl-core');
-const { tiktokdl } = require('tiktok-scraper');
+
 const app = express();
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 
 // Middleware
 app.use(express.json());
@@ -15,55 +16,49 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.use('/downloads', express.static('downloads'));
 
-// WhatsApp Bot
+// WhatsApp සම්බන්ධතා විචල්ය
 let sock = null;
 let pairingCode = '';
+let qrCode = '';
 
-// Routes
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-app.post('/connect', async (req, res) => {
-    const { phoneNumber } = req.body;
-    
+// WhatsApp සම්බන්ධතාවය ආරම්භ කරන්න
+async function connectToWhatsApp() {
     try {
-        async function connectToWhatsApp() {
-    const { state, saveCreds } = await useMultiFileAuthState('baileys_auth');
-    
-    const sock = makeWASocket({
-        version: [2, 2413, 1],
-        printQRInTerminal: true,
-        auth: state,
-        browser: ['Ubuntu', 'Chrome', '110.0.5481.177'] // Add browser info
-    });
+        const { state, saveCreds } = await useMultiFileAuthState('auth');
+        
+        sock = makeWASocket({
+            version: [2, 2413, 1],
+            printQRInTerminal: true,
+            auth: state,
+            browser: ['Ubuntu', 'Chrome', '110.0.5481.177']
+        });
 
         sock.ev.on('connection.update', (update) => {
             if (update.pairingCode) {
                 pairingCode = update.pairingCode;
-                console.log(`Pairing Code: ${pairingCode}`);
+                console.log('Pairing Code:', pairingCode);
             }
+            
+            if (update.qr) {
+                qrCode = update.qr;
+                qrcode.generate(qrCode, { small: true });
+            }
+            
             if (update.connection === 'open') {
-                console.log(`Connected to WhatsApp`);
-                setupBotHandlers();
+                console.log('WhatsApp සාර්ථකව සම්බන්ධ විය!');
             }
         });
 
         sock.ev.on('creds.update', saveCreds);
-
-        res.json({ success: true, pairingCode });
-        }
+        
+        return true;
     } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ error: 'Failed to initialize bot' });
+        console.error('සම්බන්ධතා දෝෂය:', error);
+        return false;
     }
-});
+}
 
-app.get('/get-pairing-code', (req, res) => {
-    res.json({ pairingCode: pairingCode || 'Generating...' });
-});
-
-// Bot Command Handlers
+// බොට් විධාන හසුකරන්න
 function setupBotHandlers() {
     sock.ev.on('messages.upsert', async ({ messages }) => {
         const msg = messages[0];
@@ -72,28 +67,22 @@ function setupBotHandlers() {
         const text = msg.message.conversation || '';
         const sender = msg.key.remoteJid;
 
-        // YouTube Video Download
+        // YouTube වීඩියෝ බාගන්න
         if (text.startsWith('!yt ')) {
             const url = text.split(' ')[1];
-            await handleYouTubeVideo(url, sender);
+            await downloadYouTubeVideo(url, sender);
         }
         
-        // YouTube Audio Download
+        // YouTube ගීත බාගන්න
         else if (text.startsWith('!ytmp3 ')) {
             const url = text.split(' ')[1];
-            await handleYouTubeAudio(url, sender);
-        }
-        
-        // TikTok Download
-        else if (text.startsWith('!tiktok ')) {
-            const url = text.split(' ')[1];
-            await handleTikTok(url, sender);
+            await downloadYouTubeAudio(url, sender);
         }
     });
 }
 
-// Downloader Functions
-async function handleYouTubeVideo(url, sender) {
+// YouTube වීඩියෝ බාගැනීම
+async function downloadYouTubeVideo(url, sender) {
     try {
         const info = await ytdl.getInfo(url);
         const filename = `yt_${Date.now()}.mp4`;
@@ -103,19 +92,47 @@ async function handleYouTubeVideo(url, sender) {
             .pipe(fs.createWriteStream(filepath))
             .on('finish', async () => {
                 await sock.sendMessage(sender, { 
-                    document: { url: `http://yourdomain.com/downloads/${filename}` },
+                    document: { url: `/downloads/${filename}` },
                     mimetype: 'video/mp4',
                     fileName: `${info.videoDetails.title}.mp4`
                 });
             });
     } catch (error) {
-        console.error('YouTube download error:', error);
-        await sock.sendMessage(sender, { text: 'Failed to download YouTube video' });
+        console.error('YouTube බාගැනීමේ දෝෂය:', error);
+        await sock.sendMessage(sender, { text: 'YouTube වීඩියෝ බාගැනීමට අසමත් විය' });
     }
 }
 
-// Start server
+// රූට් සැකසුම්
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.post('/connect', async (req, res) => {
+    const { phoneNumber } = req.body;
+    
+    if (!phoneNumber) {
+        return res.status(400).json({ error: 'WhatsApp අංකය ඇතුළත් කරන්න' });
+    }
+
+    const connected = await connectToWhatsApp();
+    if (connected) {
+        res.json({ success: true, message: 'WhatsApp සම්බන්ධ වෙමින්...' });
+    } else {
+        res.status(500).json({ error: 'සම්බන්ධතාවය අසාර්ථක විය' });
+    }
+});
+
+app.get('/get-code', (req, res) => {
+    res.json({ 
+        pairingCode: pairingCode || 'ජනනය වෙමින්...',
+        qrCode: qrCode || ''
+    });
+});
+
+// සේවාදායකය ආරම්භ කරන්න
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`සේවාදායකය ${PORT} වරායේ ධාවනය වෙමින් පවතී`);
     if (!fs.existsSync('downloads')) fs.mkdirSync('downloads');
+    if (!fs.existsSync('auth')) fs.mkdirSync('auth');
 });
