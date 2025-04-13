@@ -3,6 +3,8 @@
     --secondary: #128C7E;
     --dark: #075E54;
     --light: #dcf8c6;
+    --error: #ff4444;
+    --success: #00C851;
 }
 
 * {
@@ -68,6 +70,11 @@ button:hover {
     background-color: var(--secondary);
 }
 
+button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
 .code-display {
     font-size: 24px;
     font-weight: bold;
@@ -108,4 +115,37 @@ button:hover {
 
 .hidden {
     display: none;
+}
+
+#statusContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 15px 0;
+}
+
+#statusIndicator {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.status-connected {
+    background-color: var(--success);
+}
+
+.status-disconnected {
+    background-color: var(--error);
+}
+
+.status-connecting {
+    background-color: #ffbb33;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
 }
